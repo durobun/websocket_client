@@ -1,0 +1,69 @@
+<!DOCKTYPE HTML>
+<html>
+<head>
+  <title> JUS LED</title>
+  <style>
+  h1, a {
+      font-size: 10vh;
+  }
+  h2, a {
+      font-size: 7vh;
+  }
+  a:link, a:visited {
+      background-color: #f44336;
+      color: white;
+      padding: 14px 25px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+  }
+  a:hover, a:active {
+      background-color: red;
+  }
+  </style>
+
+  <script type = "text/javascript">
+  //LED Control https://www.tutorialspoint.com/html5/html5_websocket.htm
+  function conTrol(onoff){
+      var checkOnoff = document.getElementById(onoff).checked;
+      if("WebSocket" in window){ //check the browser to be supported
+          var ws = new WebSocket("ws://192.168.0.31:81"); //open websocket
+          ws.onopen = function(){
+              if(onoff == "on"){ //which switch clicked?
+                  ws.send("on"); //send data
+                  document.getElementById("on").checked = false;
+              } else if(onoff == "off"){
+                  ws.send("off");
+                  document.getElementById("off").checked = false;
+              }
+          };
+          ws.onmessage = function(evt){
+              var received_msg = evt.data;
+              document.getElementById("onoffResult").innerHTML = received_msg + " choice";
+              ws.close();
+          };
+          ws.onclose = function(){
+              //alert("Connection is closed...");
+          };
+      } else {
+          alert("This browser is not support Websocket.");
+      }
+  } 
+  </script>
+
+</head>
+
+<body>
+  <center>
+    <h1>NodeMCU Control</h1>
+    //<input type="button" id="on" onclick="conTrol('on');">
+    //<input type="button" id="off" onclick="conTrol('off');">
+    <a href="/on" id="on" onclick="conTrol('on')>ON</a>   
+    <a href="/off" id="off" onclick="conTrol('off');">OFF</a>
+    <div id = ""onoffResult"">
+       <a href = "javascript:conTrol(onoff)">Run WebSocket</a>
+    </div>
+  </center>
+</body>
+</html>
+
