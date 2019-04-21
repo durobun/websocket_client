@@ -1,74 +1,46 @@
-<!DOCKTYPE HTML>
+<!DOCTYPE html>
 <html>
 <head>
-  <title> JUS LED</title>
-  <style>
+<meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0">
+<title>ESP8266 WebSocket Demo</title>
+<style>
+"body { background-color: #808080; font-family: Arial, Helvetica, Sans-Serif; Color: #000000; }"
+</style>
 
-  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
-  h1, a {
-      font-size: 10vh;
-  }
-  h2, a {
-      font-size: 7vh;
-  }
-  a:link, a:visited {
-      background-color: #f44336;
-      color: white;
-      padding: 14px 25px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-  }
-  a:hover, a:active {
-      background-color: red;
-  }
-  </style>
+<script>
+var websock;
+var e = document.getElementById('ledstatus');
+    
+function start() {
+  websock = new WebSocket('ws://' + window.location.hostname + ':81/');
+  websock.onopen = function(evt) { console.log('websock open'); };
+  websock.onclose = function(evt) { console.log('websock close'); };
+  websock.onerror = function(evt) { console.log(evt); };
+  websock.onmessage = function(evt) {
+    alert(evt.data);
 
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
-  <script type = "text/javascript">
-  //LED Control https://www.tutorialspoint.com/html5/html5_websocket.htm
-  function conTrol(onoff){
-      var checkOnoff = document.getElementById(onoff).checked;
-      if("WebSocket" in window){ //check the browser to be supported
-          var ws = new WebSocket("ws://192.168.0.31:81"); //open websocket
-          ws.onopen = function(){
-              if(onoff == "on"){ //which switch clicked?
-                  ws.send("on"); //send data
-                  document.getElementById("on").checked = false;
-              } else if(onoff == "off"){
-                  ws.send("off");
-                  document.getElementById("off").checked = false;
-              }
-          };
-          ws.onmessage = function(evt){
-              var received_msg = evt.data;
-              document.getElementById("onoffResult").innerHTML = received_msg + " choice";
-              ws.close();
-          };
-          ws.onclose = function(){
-              //alert("Connection is closed...");
-          };
-      } else {
-          alert("This browser is not support Websocket.");
-      }
-  } 
-  </script>
-
+    if (evt.data === 'ledon') {
+      e.style.color = 'red';
+    }
+    else if (evt.data === 'ledoff') {
+      e.style.color = 'black';
+    }
+    else {
+      console.log('unknown event');
+    }
+  };
+}
+function buttonclick(e) {
+  websock.send(e.id);
+}
+</script>
 </head>
-
-<body>
-  <center>
-    <h1>NodeMCU Control</h1>
-    //<input type="button" id="on" onclick="conTrol('on');">
-    //<input type="button" id="off" onclick="conTrol('off');">
-    <a href="/on" id="on" onclick="conTrol('on')>ON</a>   
-    <a href="/off" id="off" onclick="conTrol('off');">OFF</a>
-    <div id = ""onoffResult"">
-       <a href = "javascript:conTrol(onoff)">Run WebSocket</a>
-    </div>
-  </center>
+<body onload="javascript:start();">
+<center>
+<h1>ESP8266 WebSocket Demo</h1>
+<div id="ledstatus"><b>LED-STATUS</b></div>
+<button id="ledon"  type="button" style = "boarder-radius:0.5em; background-color:red; color:yellow; padding: 15px 32px; font-size: 2em; margin:4px 2px;" onclick="buttonclick(this);">On</button> 
+<button id="ledoff" type="button" style = "boarder-radius:0.5em; background-color:green; color:black; padding: 15px 32px; font-size: 2em; margin:4px 2px;" onclick="buttonclick(this);">Off</button>
+</center>
 </body>
 </html>
-
